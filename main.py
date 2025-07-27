@@ -6,6 +6,8 @@ import os
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
+from PIL import Image
+from io import BytesIO
 
 # 图表网址（TradingView 公共图表链接）
 URL = "https://www.tradingview.com/chart/?symbol=OANDA%3AXAUUSD"
@@ -77,14 +79,16 @@ def capture_charts():
     return uploaded_urls
 
 def verify_imgbb_ready(url):
-    for attempt in range(5):
+    for attempt in range(20):
         try:
             resp = requests.get(url)
-            if resp.status_code == 200 and len(resp.content) > 80000:
-                return True
+            if resp.status_code == 200 and len(resp.content) > 180000:
+                img = Image.open(BytesIO(resp.content))
+                if img.width > 1000 and img.height > 700:
+                    return True
         except:
             pass
-        time.sleep(2)
+        time.sleep(3)
     return False
 
 def trigger_analysis(image_urls):
